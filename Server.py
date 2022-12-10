@@ -3,27 +3,27 @@ import numpy as np
 
 class Server:
 
-    def __init__(self, epsilon_inf, epsilon_1, m):
-        self.epsilon_inf = epsilon_inf
-        self.epsilon_1 = epsilon_1
-        self.m = m  # client's counter values are integers in [0, m)
-        self.reports = []  # client's reports
+    def __init__(self, epsilon_inf, epsilon_1):
+        if epsilon_1 >= epsilon_inf:
+            raise ValueError('Please set epsilon_1 < epsilon_infinity')
+        else:
+            self.f = 2 / (1 + np.exp(epsilon_inf / 2))
+            self.p = (np.exp(epsilon_inf / 2) - np.exp(epsilon_1 / 2)) /\
+                     ((np.exp(epsilon_inf / 2) - 1)*(np.exp(epsilon_1 / 2) + 1))
+            if (np.array([self.f, self.p, 1 - self.f, 1 - self.p]) >= 0).all():
+                pass
+            else:
+                raise ValueError('Probabilities are negative.')
 
-    # collect client's reports
-    def collect(self, rep):
-        self.reports.append(rep)
-
-    # calculate histogram estimation
-    def estimation(self, v):
-        h = 0  # number of reports with value v
-        n = len(self.reports)  # number of reports
-        e_inf = np.exp(self.epsilon_inf)
-        e_1 = np.exp(self.epsilon_1)
-        p1 = e_inf / (e_inf + self.m - 1)
-        q1 = (1 - p1) / (self.m - 1)
-        p2 = (e_1*e_inf-1) / ((self.m-1)*e_inf - self.m*e_1 + e_1 + e_1*e_inf - 1)
-        q2 = (1 - p2) / (self.m - 1)
-        for rep in self.reports:
-            if rep == v:  h += 1
-        estimate = ((h - n*q1*(p2-q2) - n*q2) / (n * (p1-q1)*(p2-q2))).clip(0)
-        return estimate
+    def estimate(self, reports):
+        d = len(reports)
+        if d == 0:
+            raise ValueError('List of reports is empty.')
+        mu = 0
+        est_freq = ((sum(reports)/d - (self.p + (self.f / 2) * (1 - 2 * self.p))) /
+                    ((1 - self.f) * (1 - 2 * self.p))).clip(0)
+        if sum(est_freq) > 0:
+            est_freq = np.nan_to_num(est_freq / sum(est_freq))
+        for i in range(len(est_freq)):
+            mu += est_freq[i] * i
+        return mu
