@@ -3,9 +3,7 @@ import numpy as np
 
 class Server:
 
-    def __init__(self, epsilon, m, gamma):
-        self.epsilon = np.log(((1 - 2 * gamma)*(np.exp(epsilon) / (np.exp(epsilon) + 1)) + gamma) /
-                              ((1 - 2 * gamma)*(1 / (np.exp(epsilon) + 1)) + gamma))
+    def __init__(self, epsilon, m):
         self.epsilon = epsilon
         self.m = m
         self.bits = []
