@@ -9,13 +9,13 @@ h = 50                  # the number of reports of each client
 epsilon = 1             # privacy parameter
 file = './datasets/NJ2021.csv'     # the file containing client's data
 mu = 0                  # estimated mean
-s = 4                   # segment size
+s = 5                   # segment size
 gamma = 0.02            # privacy parameter for output peturbation
 consumed_budget = []    # consumed budget of each client
-mean = 0
+mean = 0                # real mean
 
 if __name__ == "__main__":
-    server = Server(epsilon, m, gamma)  # create server
+    server = Server(epsilon, m)  # create server
     with open(file) as file_obj:
         dataset = csv.reader(file_obj)
         next(dataset)
